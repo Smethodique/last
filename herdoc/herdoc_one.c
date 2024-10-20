@@ -1,12 +1,10 @@
 #include "../minishell.h"
 
-int	myrand(void)
+int myrand(void)
 {
-	static unsigned int	seed;
-
-	seed = 0;
-	seed = seed * 1103515245 + 12345;
-	return ((unsigned int)(seed / 65536) % 32768);
+	static unsigned int seed = 1;
+	seed = (seed * 1103515245 + 12345) % 32768;
+	return seed;
 }
 
 int	create_temp_file(char *template)

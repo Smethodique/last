@@ -11,6 +11,8 @@ void	process_linee(char *line, char **env)
 	if (tokens)
 	{
 		commands = parse_tokens(tokens);
+		print_command_list(commands);
+		print_tokens(tokens);
 		if (commands)
 		{
 			if (commands->next)
@@ -64,6 +66,8 @@ int	main(int argc, char **argv, char **env)
 	(void)argc;
 	(void)argv;
 	g_vars.env = env;
+	g_vars.khbi = -1;
+	g_vars.heredoc_interrupted = 0;
 	if (env == NULL || env[0] == NULL)
 	{
 		env = create_env();

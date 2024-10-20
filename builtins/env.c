@@ -163,14 +163,14 @@ size_t	length(char *s)
 	return (i);
 }
 
-int	check_dup_env(char *cmd, char **env)
+int	check_dup_env(char *cmd)
 {
 	int	i;
 
 	i = 0;
-	while (env[i])
+	while (g_vars.env[i])
 	{
-		if (!ft_strncmp(env[i], cmd, length(env[i])))
+		if (!ft_strncmp(g_vars.env[i], cmd, length(g_vars.env[i])))
 			return (i);
 		else
 			i++;
@@ -178,25 +178,25 @@ int	check_dup_env(char *cmd, char **env)
 	return (0);
 }
 
-void	unset_helper(char *cmd, char **env, int len)
+void	unset_helper(char *cmd, int len)
 {
 	int	checker;
 	int	i;
 
-	checker = check_dup_env(cmd, env);
-	if (checker && (length(env[checker]) == length(cmd)))
+	checker = check_dup_env(cmd);
+	if (checker && (length(g_vars.env[checker]) == length(cmd)))
 	{
 		i = checker;
 		while (i < len - 1)
 		{
-			env[i] = env[i + 1];
+			g_vars.env[i] = g_vars.env[i + 1];
 			i++;
 		}
-		env[len - 1] = NULL;
+		g_vars.env[len - 1] = NULL;
 	}
 }
 
-void	unset(t_command *cmd, char **env)
+void	unset(t_command *cmd)
 {
 	int i = 1;
 	int len;
@@ -205,9 +205,9 @@ void	unset(t_command *cmd, char **env)
 		while (cmd->args[i])
 		{
 			len = 0;
-			while (env[len])
+			while (g_vars.env[len])
 				len++;
-			unset_helper(cmd->args[i], env, len);
+			unset_helper(cmd->args[i], len);
 			i++;
 		}
 	}

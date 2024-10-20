@@ -46,13 +46,14 @@ void	execute_builtin(t_command *cmd, char **environment, int index)
 	else if (index == 2)
 		export(cmd);
 	else if (index == 3)
-		unset(cmd, environment);
+		unset(cmd);
 	else if (index == 4)
 		echo(cmd, environment);
 	else if (index == 5)
 		pwd(cmd, environment);
 	else if (index == 6)
 		ft_exit(cmd, environment);
+      g_vars.exit_status = 0;
 }
 
 int	is_builtin(t_command *cmd)

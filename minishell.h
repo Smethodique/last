@@ -18,12 +18,15 @@
 # include <termios.h>
 # include <unistd.h>
 # define NOT_BUILT_IN -1
+# include <readline/readline.h>
 
 typedef struct s_global_vars
 {
 	int						exit_status;
 	char					**env;
 	int						heredoc_interrupted;
+	 int khbi ;
+
 }							t_global_vars;
 
 extern t_global_vars		g_vars;
@@ -147,6 +150,8 @@ typedef struct s_tokenizer_params
 	int						expect_filename;
 	t_token					**tokens;
 }							t_tokenizer_params;
+
+
 
 typedef struct s_heredoc_manager
 {
@@ -301,6 +306,9 @@ void	initialize_heredoc(t_heredoc *hdoc,
 
 int							resize_content_if_needed(t_heredoc *hdoc);
 void						append_line_to_content(t_heredoc *hdoc);
+void heredoc_signals(void);
+
+void reset_signals(void);
 char	*handle_heredoc(const char *delimiter,
 						int expand_vars);
 int	read_and_process_line(t_heredoc *hdoc,
@@ -386,8 +394,8 @@ void export_helper(char *cmd, char ***env, int len);
 int							check_env(char *cmd, char **env);
 void						print_export(char *env);
 int							pwd(t_command *cmd, char **env);
-void						unset(t_command *cmd, char **env);
-void						unset_helper(char *cmd, char **env, int len);
+void						unset(t_command *cmd);
+void						unset_helper(char *cmd, int len);
 char						*get_env_value(char *name, char **env);
 size_t						length(char *s);
 

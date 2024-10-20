@@ -1,97 +1,115 @@
+
 #include "../minishell.h"
 
-void	update_old_pwd(char *old_pwd, char **env)
+static void update_env_variable(char **env, const char *var_name, const char *new_value)
 {
-	int	i;
+    int i;
+    char *new_entry;
 
-	i = 0;
-	while (env[i])
-	{
-		if (ft_strncmp(env[i], "OLDPWD=", 7) == 0)
-			env[i] = ft_strjoin("OLDPWD=", old_pwd);
-		i++;
-	}
+    i = 0;
+    while (env[i])
+    {
+        if (ft_strncmp(env[i], var_name, ft_strlen(var_name)) == 0)
+        {
+            new_entry = ft_strjoin((char *)var_name, (char *)new_value);
+            env[i] = new_entry;
+            return;
+        }
+        i++;
+    }
+
+    // If the variable doesn't exist, add it
+    new_entry = ft_strjoin((char *)var_name, (char *)new_value);
+    env = ft_realloc(env, (i + 2) * sizeof(char *));
+    env[i] = new_entry;
+    env[i + 1] = NULL;
 }
 
-void	update_pwd(char *pwd, char **env)
+static void handle_cd_dash(char **env)
 {
-	int	i;
+    char *oldpwd;
 
-	i = 0;
-	while (env[i])
-	{
-		if (ft_strncmp(env[i], "PWD=", 4) == 0)
-			env[i] = ft_strjoin("PWD=", pwd);
-		i++;
-	}
+    oldpwd = get_env_value("OLDPWD", env);
+    if (oldpwd)
+    {
+        if (chdir(oldpwd) == 0)
+        {
+            ft_putendl_fd(oldpwd, STDOUT_FILENO);
+        }
+        else
+        {
+            ft_putstr_fd("minishell: cd: ", STDERR_FILENO);
+            ft_putstr_fd(oldpwd, STDERR_FILENO);
+            ft_putendl_fd(": No such file or directory", STDERR_FILENO);
+        }
+        free(oldpwd);
+    }
+    else
+    {
+        ft_putendl_fd("minishell: cd: OLDPWD not set", STDERR_FILENO);
+    }
 }
 
-char	*ft_chr(char **env, char *vrb)
+static void handle_cd_home(char **env)
 {
-	int	i;
-	int	j;
+    char *home;
 
-	i = 0;
-	while (env[i])
-	{
-		if (env[i][0] == *vrb)
-		{
-			j = 0;
-			while (env[i][j] && vrb[j] && env[i][j] == vrb[j])
-				j++;
-			if (env[i][j] == '=' && !vrb[j])
-			{
-				return (ft_strdup(*(env + i) + j + 1));
-			}
-		}
-		i++;
-	}
-	free(vrb);
-	return (NULL);
+    home = get_env_value("HOME", env);
+    if (home)
+    {
+        if (chdir(home) != 0)
+        {
+            ft_putstr_fd("minishell: cd: ", STDERR_FILENO);
+            ft_putstr_fd(home, STDERR_FILENO);
+            ft_putendl_fd(": No such file or directory", STDERR_FILENO);
+        }
+    }
+    else
+    {
+        ft_putendl_fd("minishell: cd: HOME not set", STDERR_FILENO);
+    }
 }
 
-void	handle_cd(t_command *cmd, char **env)
+void cd(t_command *cmd, char **env)
 {
-	char	*home;
+    char *old_pwd;
+    char *new_pwd;
 
-	if (!ft_strncmp(cmd->args[1], "-", 2))
-	{
-		chdir(ft_chr(env, "OLDPWD"));
-		pwd(cmd, env);
-		if (!ft_chr(env, "OLDPWD"))
-			ft_putstr_fd("minishell: OLDPWD not set\n", 2);
-	}
-	else if (cmd->args[1] == NULL || !ft_strncmp(cmd->args[1], "~", 2))
-	{
-		if (ft_chr(env, "HOME"))
-		{
-			home = ft_chr(env, "HOME");
-			chdir(home);
-		}
-		else
-		{
-			ft_putstr_fd("minishell: HOME not set\n", 2);
-		}
-	}
-	else if (chdir(cmd->args[1]))
-	{
-		perror("minishell");
-	}
-}
+    old_pwd = getcwd(NULL, 0);
+    if (!old_pwd)
+    {
+        perror("minishell: cd");
+        return;
+    }
 
-void	cd(t_command *cmd, char **env)
-{
-	char	*old_p;
-	char	*cwd;
+    if (!cmd->args[1] || ft_strcmp(cmd->args[1], "~") == 0)
+    {
+        handle_cd_home(env);
+    }
+    else if (ft_strcmp(cmd->args[1], "-") == 0)
+    {
+        handle_cd_dash(env);
+    }
+    else if (chdir(cmd->args[1]) != 0)
+    {
+        ft_putstr_fd("minishell: cd: ", STDERR_FILENO);
+        ft_putstr_fd(cmd->args[1], STDERR_FILENO);
+        ft_putendl_fd(": No such file or directory", STDERR_FILENO);
+        free(old_pwd);
+        return;
+    }
 
-	old_p = getcwd(NULL, 1000);
-	update_old_pwd(old_p, env);
-	if (cmd->args[2])
-	{
-		ft_putstr_fd("minishell: too many arguments\n", 2);
-		return ;
-	}
-	handle_cd(cmd, env);
-	cwd = getcwd(NULL, 1000);
-	update_pwd(cwd, env);
+    new_pwd = getcwd(NULL, 0);
+    if (!new_pwd)
+    {
+        perror("minishell: cd");
+        free(old_pwd);
+        return;
+    }
+
+    update_env_variable(env, "OLDPWD=", old_pwd);
+    update_env_variable(env, "PWD=", new_pwd);
+
+    free(old_pwd);
+    free(new_pwd);
 }

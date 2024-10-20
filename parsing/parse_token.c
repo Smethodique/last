@@ -78,7 +78,6 @@ t_command	*parse_tokens(t_token *tokens)
 				return (ctx.command_list);
 			}
 		}
-		if (tokens)
 			tokens = tokens->next;
 	}
 	return (ctx.command_list);

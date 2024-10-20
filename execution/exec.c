@@ -44,6 +44,13 @@ char	*get_path(char **cmd)
 	char	**path;
 	char	*env_path;
 
+	if (cmd[0][0] == '/' || (cmd[0][0] == '.' && cmd[0][1] == '/'))
+	{
+		if (access(cmd[0], F_OK) == 0)
+			return (ft_strdup(cmd[0]));
+		else
+			return (NULL);
+	}
 	env_path = NULL;
 	i = 0;
 	while (g_vars.env[i])
@@ -56,53 +63,42 @@ char	*get_path(char **cmd)
 		i++;
 	}
 	if (env_path == NULL || *env_path == '\0')
-		return (ft_strdup(cmd[0]));
+		return (NULL);
 	path = ft_splitD(env_path, ":");
 	return (check_path(cmd, path));
 }
 
+
+
 void	execute_cmd(char **cmd)
 {
 	pid_t	pid;
-	int		status;
 	char	*path;
 
-	pid = fork();
-	if (pid == -1)
+	path = get_path(cmd);
+	if (path == NULL )
 	{
-		perror("minishell: fork failed");
+		printf("minishell: %s: command not found\n", cmd[0]);
+		g_vars.exit_status = 127;
 		return ;
 	}
-	else if (pid == 0)
+	pid = fork();
+
+	if (pid == 0)
 	{
-		signal(SIGINT, SIG_DFL);
-		signal(SIGQUIT, SIG_DFL);
-		path = get_path(cmd);
-		if (path == NULL)
+		if (execve(path, cmd, g_vars.env) == -1)
 		{
-			if (execve(cmd[0], cmd, g_vars.env) == -1)
-			{
-				ft_putstr_fd("minishell: command not found: ", 2);
-				ft_putstr_fd(cmd[0], 2);
-				ft_putstr_fd("\n", 2);
-				exit(127);
-			}
+			printf("minishell: command not found: %s\n", cmd[0]);
+			g_vars.exit_status = 127;
 		}
-		else if (execve(path, cmd, g_vars.env) == -1)
-		{
-			free(path);
-			perror("minishell: execution failed");
-			exit(126);
-		}
+	}
+	else if (pid < 0)
+	{
+		printf("minishell: %s: %s\n", cmd[0], strerror(errno));
 	}
 	else
-	{
-		waitpid(pid, &status, 0);
-		if (WIFEXITED(status))
-			g_vars.exit_status = WEXITSTATUS(status);
-		else if (WIFSIGNALED(status))
-			g_vars.exit_status = 128 + WTERMSIG(status);
-	}
+		waitpid(pid, &g_vars.exit_status, 0);
+	free(path);
 }
 
 void	exec(t_command *cmd)

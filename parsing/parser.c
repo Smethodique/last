@@ -25,12 +25,12 @@ void	handle_heredoc_delim(const char *input, int *i, int len,
 	int		start;
 	char	*delimiter;
 
-	while (*i < len && isspace(input[*i]))
+	while (*i < len && ft_isspace(input[*i]))
 	{
 		(*i)++;
 	}
 	start = *i;
-	while (*i < len && !isspace(input[*i]))
+	while (*i < len && !ft_isspace(input[*i]))
 	{
 		(*i)++;
 	}
@@ -70,7 +70,7 @@ void	handle_filename(const char *input, int *i, int len, t_token **tokens)
 	char	*filename;
 
 	start = *i;
-	while (*i < len && !isspace(input[*i]) && input[*i] != '|'
+	while (*i < len && !ft_isspace(input[*i]) && input[*i] != '|'
 		&& input[*i] != '<' && input[*i] != '>' && input[*i] != '\''
 		&& input[*i] != '"')
 	{

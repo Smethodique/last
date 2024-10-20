@@ -7,23 +7,22 @@ execution/redirect.c builtins/echo.c builtins/cd.c builtins/pwd.c builtins/expor
 builtins/builtins.c builtins/env.c execution/signals.c execution/handle_pipe.c      \
 herdoc/expande_her.c herdoc/herdoc_one.c
 
-
 OBJS = $(SRCS:.c=.o)
 LIBFT = 1337Libft/libft.a
 CC = cc
-CFLAGS = -Wall -Wextra -Werror -g
-LDFLAGS = -L1337Libft -lft -lreadline
+CFLAGS = -Wall -Wextra -Werror -g  -fsanitize=address -I/Users/stakhtou/homebrew/opt/readline/include
+LDFLAGS = -L1337Libft -lft -L/Users/stakhtou/homebrew/opt/readline/lib -lreadline
 
 all: $(NAME)
 
 $(NAME): $(OBJS) $(LIBFT)
-	$(CC) $(CFLAGS) $(OBJS) $(LDFLAGS) -o $(NAME)
+		$(CC) $(CFLAGS) $(OBJS) $(LDFLAGS) -o $(NAME)
 
 %.o: %.c
-	$(CC) $(CFLAGS) -c $< -o $@
+		$(CC) $(CFLAGS) -c $< -o $@
 
 $(LIBFT):
-	make -C 1337Libft
+		make -C 1337Libft
 
 clean:
 	rm -f $(OBJS)
