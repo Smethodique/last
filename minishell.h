@@ -14,6 +14,7 @@
 # include <sys/ioctl.h>
 # include <sys/stat.h>
 # include <sys/types.h>
+# include <stdbool.h>
 # include <sys/wait.h>
 # include <termios.h>
 # include <unistd.h>
@@ -139,6 +140,8 @@ typedef struct s_redirection
 	int type; // INPUT, OUTPUT, or APPEND
 	char					*filename;
 	struct s_redirection	*next;
+	int				new_fd;
+
 }							t_redirection;
 
 typedef struct s_tokenizer_params
@@ -285,6 +288,13 @@ void	initialize_state(t_lexer_state *state,
 int	handle_heredoc_cases(t_lexer_state *state,
 							const char *input);
 int							handle_whitespace(t_lexer_state *state);
+void update_env_variable(char **env, const char *var, const char *value);
+ void update_wds(char **env, const char *wd);
+bool chdir_errno_mod(const char *path);
+bool change_dir(char **env, char *path);
+void handle_tilde(char **env, char **path);
+void cd(t_command *cmd, char **env);
+
 int							handle_pipe(t_lexer_state *state);
 t_command					*new_command(void);
 int							myrand(void);
@@ -380,7 +390,7 @@ void						cd(t_command *cmd, char **env);
 int							echo(t_command *cmd, char **env);
 int							first_non_option(char **args);
 int							is_n_option(char *arg);
-void						env(t_command *cmd);
+void						env(t_command *cmd );
 void						handle_pipes(t_command *commands, char **env);
 void add_to_env(char ***env, char *new_var);
 int							double_pointer_len(char **str);

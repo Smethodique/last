@@ -77,3 +77,4 @@ int	main(int argc, char **argv, char **env)
 	init_shell(env);
 	return (g_vars.exit_status);
 }
+

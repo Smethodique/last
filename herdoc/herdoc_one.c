@@ -42,9 +42,7 @@ int	my_mkstemp(char *template)
 	while (i < 6)
 	{
 		if (p[i] != 'X')
-		{
 			return (-1);
-		}
 		i++;
 	}
 	fd = create_temp_file(template);

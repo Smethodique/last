@@ -47,13 +47,14 @@ void	increment_shlvl(char **env)
 		{
 			shlvl = atoi(env[i] + 6);
 			shlvl++;
-			char *new_shlvl = malloc(20);
-				// Allocate enough space for "SHLVL=" and the new value
-			if (new_shlvl)
-			{
-				sprintf(new_shlvl, "SHLVL=%d", shlvl);
-				env[i] = new_shlvl;
-			}
+			  while (env[i])
+			  {
+				  if(strncmp(env[i], "SHLVL=", 6) == 0)
+				  {
+					  env[i] = ft_strjoin("SHLVL=", ft_itoa(shlvl));
+					  break ;
+				  }
+			  }
 			return ;
 		}
 		i++;
@@ -81,7 +82,22 @@ void	add_to_env(char ***env, char *new_var)
 		*env = new_env;
 	}
 }
-
+void print_env(void)
+{
+	int	j;
+j = 0;
+		while (g_vars.env[j])
+		{
+			if (strcmp(g_vars.env[j],
+					"PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin") == 0)
+			{
+				j++;
+				continue ;
+			}
+			printf("%s\n", g_vars.env[j]);
+			j++;
+		}
+}		
 void	free_env(char **env)
 {
 	int	i;
@@ -99,55 +115,27 @@ void	env(t_command *cmd)
 {
 	int		i;
 	char	**new_env;
-	int		empty_env;
-	int		j;
 
 	i = 1;
 	new_env = NULL;
-	empty_env = 0;
-	if (cmd->args && cmd->args[1] && strcmp(cmd->args[1], "-i") == 0)
-	{
-		empty_env = 1;
+	if (cmd->args && cmd->args[1] && ft_strcmp(cmd->args[1], "-i") == 0)
 		i++;
-	}
-	if (empty_env || g_vars.env == NULL || g_vars.env[0] == NULL)
-	{
+	if ( g_vars.env == NULL || g_vars.env[0] == NULL)
 		new_env = create_env();
-	}
 	else
-	{
 		new_env = g_vars.env;
-	}
-	while (cmd->args[i] && strchr(cmd->args[i], '='))
-	{
-		add_to_env(&new_env, cmd->args[i]);
-		i++;
-	}
+	while (cmd->args[i] && ft_strchr(cmd->args[i], '='))
+		add_to_env(&new_env, cmd->args[i++]);
 	g_vars.env = new_env;
 	if (cmd->args[i])
-	{
 		execute_cmd(&cmd->args[i]);
-	}
 	else
 	{
-		// Print the environment
-		j = 0;
-		while (g_vars.env[j])
-		{
-			if (strcmp(g_vars.env[j],
-					"PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin") == 0)
-			{
-				j++;
-				continue ;
-			}
-			printf("%s\n", g_vars.env[j]);
-			j++;
-		}
+		print_env();
+		ft_setter(0);
 	}
-	if (empty_env || g_vars.env == NULL || g_vars.env[0] == NULL)
-	{
-		create_env();
-	}
+	if ( g_vars.env == NULL || g_vars.env[0] == NULL)
+	   create_env();
 	ft_setter(0);
 }
 

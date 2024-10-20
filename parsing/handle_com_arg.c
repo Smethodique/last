@@ -1,7 +1,7 @@
 #include "../minishell.h"
 
-void	initialize_handle_vars(t_handle_vars *vars, const char *input, int *i,
-		t_token **tokens)
+void initialize_handle_vars(t_handle_vars *vars, const char *input, int *i,
+							t_token **tokens)
 {
 	(void)input;
 	vars->start = *i;
@@ -13,7 +13,7 @@ void	initialize_handle_vars(t_handle_vars *vars, const char *input, int *i,
 		vars->last_token = vars->last_token->next;
 }
 
-void	parse_comm(const char *input, int *i, int len, t_handle_vars *vars)
+void parse_comm(const char *input, int *i, int len, t_handle_vars *vars)
 {
 	while (*i < len)
 	{
@@ -21,36 +21,32 @@ void	parse_comm(const char *input, int *i, int len, t_handle_vars *vars)
 			vars->in_single_quotes = !vars->in_single_quotes;
 		else if (input[*i] == '"' && !vars->in_single_quotes && !vars->escaped)
 			vars->in_double_quotes = !vars->in_double_quotes;
-		else if (!vars->in_single_quotes && !vars->in_double_quotes
-				&& !vars->escaped &&
-					(isspace(input[*i]) || input[*i] == '|' || input[*i] == '<'
-							|| input[*i] == '>'))
-			break ;
+		else if (!vars->in_single_quotes && !vars->in_double_quotes && !vars->escaped &&
+				 (isspace(input[*i]) || input[*i] == '|' || input[*i] == '<' || input[*i] == '>'))
+			break;
 		vars->escaped = 0;
 		(*i)++;
 	}
 }
 
-void	process_value(const char *input, int *i, t_handle_vars *vars,
-		t_token **tokens)
+void process_value(const char *input, int *i, t_handle_vars *vars,
+				   t_token **tokens)
 {
 	vars->value = strndup(input + vars->start, *i - vars->start);
 	if (!vars->value)
 	{
 		ft_putstr_fd("Error: failed to allocate memory\n", 2);
-		return ;
+		return;
 	}
 	vars->expanded_value = expand_variables(vars->value);
 	free(vars->value);
 	if (!vars->expanded_value)
-		return ;
+		return;
 	vars->final_value = ft_strdup(vars->expanded_value);
 	free(vars->expanded_value);
 	if (!vars->final_value)
-		return ;
-	if (*tokens == NULL || vars->last_token->type == PIPE
-		|| vars->last_token->type == FILENAME
-		|| vars->last_token->type == DELIMITER)
+		return;
+	if (*tokens == NULL || vars->last_token->type == PIPE || vars->last_token->type == FILENAME || vars->last_token->type == DELIMITER)
 		vars->type = COMMANDE;
 	else
 		vars->type = ARG;
@@ -59,11 +55,11 @@ void	process_value(const char *input, int *i, t_handle_vars *vars,
 	add_token(tokens, vars->new);
 	free(vars->final_value);
 }
-int	detect_unclosed_quotes(const char *str)
+int detect_unclosed_quotes(const char *str)
 {
-	int	i;
-	int	in_double_quotes;
-	int	in_single_quotes;
+	int i;
+	int in_double_quotes;
+	int in_single_quotes;
 
 	i = 0;
 	in_double_quotes = 0;
@@ -82,21 +78,20 @@ int	detect_unclosed_quotes(const char *str)
 		return (2);
 	return (0);
 }
-void	handle_command_or_argument(const char *input, int *i, int len,
-		t_token **tokens)
+void handle_command_or_argument(const char *input, int *i, int len,
+								t_token **tokens)
 {
-	t_handle_vars	vars;
+	t_handle_vars vars;
 
 	initialize_handle_vars(&vars, input, i, tokens);
 	parse_comm(input, i, len, &vars);
-	if (detect_unclosed_quotes(input) == 1
-		|| detect_unclosed_quotes(input) == 2)
+	if (detect_unclosed_quotes(input) == 1 || detect_unclosed_quotes(input) == 2)
 	{
 		ft_putstr_fd("Error: unclosed quote\n", 2);
 		g_vars.exit_status = 2;
 		free_tokens(*tokens);
 		*tokens = NULL;
-		return ;
+		return;
 	}
 	process_value(input, i, &vars, tokens);
 }

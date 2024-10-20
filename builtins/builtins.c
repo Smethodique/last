@@ -1,20 +1,21 @@
 #include "../minishell.h"
-
-void	ft_exit(t_command *cmd, char **env)
+void handle_cmd_exit(t_command *cmd)
+{
+	if (cmd->arg_count > 2)
+	{
+		ft_putstr_fd("exit\n", 2);
+		ft_putstr_fd("exit: too many arguments\n", 2);
+		g_vars.exit_status = 1;
+		return ;
+	}
+}void	ft_exit(t_command *cmd)
 {
 	int	i;
 	int	status;
 
-	(void)env;
 	i = 0;
 	status = 0;
-	if (cmd->arg_count > 2)
-	{
-		ft_putstr_fd("exit\n", 2);
-		ft_putstr_fd("minishell: exit: too many arguments\n", 2);
-		g_vars.exit_status = 1;
-		return ;
-	}
+      handle_cmd_exit(cmd);
 	if (cmd->arg_count == 2)
 	{
 		while (cmd->args[1][i])
@@ -22,9 +23,7 @@ void	ft_exit(t_command *cmd, char **env)
 			if (!ft_isdigit(cmd->args[1][i]))
 			{
 				ft_putstr_fd("exit\n", 2);
-				ft_putstr_fd("minishell: exit: ", 2);
 				ft_putstr_fd(cmd->args[1], 2);
-				ft_putstr_fd(": numeric argument required\n", 2);
 				g_vars.exit_status = 255;
 				return ;
 			}
@@ -52,8 +51,8 @@ void	execute_builtin(t_command *cmd, char **environment, int index)
 	else if (index == 5)
 		pwd(cmd, environment);
 	else if (index == 6)
-		ft_exit(cmd, environment);
-	else
+		ft_exit(cmd);
+	   else 
 		g_vars.exit_status = 0;
 }
 
@@ -64,13 +63,14 @@ int	is_builtin(t_command *cmd)
 	int num_builtins = sizeof(built_in) / sizeof(built_in[0]);
 	int i;
 
-	for (i = 0; i < num_builtins; i++)
+	i = 0;
+	while (i < num_builtins)
 	{
-		if (ft_strncmp(cmd->args[0], built_in[i], ft_strlen(built_in[i])
-				+ 1) == 0)
+		if (ft_strncmp(cmd->args[0], built_in[i], ft_strlen(built_in[i]) + 1) == 0)
 		{
-			return (i);
+			return i;
 		}
+		i++;
 	}
-	return (-1); // Return -1 to indicate that the command is not a built-in
+	return (-1);
 }

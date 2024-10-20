@@ -2,7 +2,7 @@
 #include "../minishell.h"
 
 static int	check_token(t_token **current, int *command_count,
-		int *redirection_count)
+int *redirection_count)
 {
 	if ((*current)->type == COMMANDE || (*current)->type == ARG)
 	{
@@ -24,8 +24,7 @@ static int	check_token(t_token **current, int *command_count,
 			return (ft_putstr_fd("Error: Missing filename after redirection OR delimiter after herdoc \n",
 					2), 0);
 		if ((*current)->type != HEREDOC && (*current)->next->type != FILENAME)
-			return (ft_putstr_fd("Error: Missing filename after redirection\n",
-					2), 0);
+			return (ft_putstr_fd("Error: Missing filename  redirection\n",2), 0);
 		*current = (*current)->next;
 		(*redirection_count)++;
 	}
@@ -51,10 +50,17 @@ int	validate_syntax(t_token *tokens)
 	}
 	return (1);
 }
-
-t_command	*parse_tokens(t_token *tokens)
+void all_parse(t_parse_context *ctx, t_token **tokens)
 {
-	t_parse_context	ctx;
+	parse_token_one(ctx, tokens);
+	parse_token_two(ctx, tokens);
+	parse_token_three(ctx, tokens);
+	parse_token_four(ctx, tokens);
+}
+
+t_command *parse_tokens(t_token *tokens)
+{
+	t_parse_context ctx;
 
 	ctx.command_list = NULL;
 	ctx.current_command = NULL;
@@ -65,10 +71,7 @@ t_command	*parse_tokens(t_token *tokens)
 	}
 	while (tokens)
 	{
-		parse_token_one(&ctx, &tokens);
-		parse_token_two(&ctx, &tokens);
-		parse_token_three(&ctx, &tokens);
-		parse_token_four(&ctx, &tokens);
+		all_parse(&ctx, &tokens);
 		if (tokens)
 		{
 			parse_token_five(&ctx, &tokens);
@@ -78,7 +81,7 @@ t_command	*parse_tokens(t_token *tokens)
 				return (ctx.command_list);
 			}
 		}
-			tokens = tokens->next;
+		tokens = tokens->next;
 	}
 	return (ctx.command_list);
 }

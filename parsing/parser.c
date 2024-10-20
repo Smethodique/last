@@ -85,39 +85,7 @@ void	handle_filename(const char *input, int *i, int len, t_token **tokens)
 
 // Function to handle commands and arguments
 
-void	concatinate(t_token **tokens)
-{
-	t_token	*current;
-	t_token	*next;
-	char	*new_value;
 
-	current = *tokens;
-	while (current && current->next)
-	{
-		next = current->next;
-		if ((current->type == ARG || current->type == COMMANDE) &&
-			(next->type == ARG || next->type == COMMANDE) &&
-			!current->space)
-		{
-			new_value = malloc(strlen(current->value) + ft_strlen(next->value)
-					+ 1);
-			if (!new_value)
-				return ;
-			ft_strcpy(new_value, current->value);
-			ft_strcat(new_value, next->value);
-			free(current->value);
-			current->value = new_value;
-			current->next = next->next;
-			current->space = next->space;
-			free(next->value);
-			free(next);
-			if (!current->next)
-				break ;
-		}
-		else
-			current = current->next;
-	}
-}
 
 t_command	*new_command(void)
 {
@@ -149,7 +117,6 @@ void	add_argument(t_command *cmd, char *arg)
 	trimmed_arg = ft_strtrim(arg, " \t");
 	if (trimmed_arg == NULL)
 	{
-		// Handle memory allocation error
 		return ;
 	}
 	if (cmd->arg_count == 0)
@@ -268,32 +235,32 @@ void	free_command_list(t_command *list)
 	}
 }
 
-void	print_command_list(t_command *list)
-{
-	t_redirection	*redir;
+// void	print_command_list(t_command *list)
+// {
+// 	t_redirection	*redir;
 
-	while (list)
-	{
-		printf("Command: %s\n", list->name);
-		printf("Arguments:");
-		for (int i = 0; i < list->arg_count; i++)
-		{
-			printf(" %s", list->args[i]);
-		}
-		printf("\n");
-		redir = list->redirections;
-		while (redir)
-		{
-			printf("Redirection: %s -> %s\n",
-					redir->type == INPUT ? "INPUT" : redir->type == OUTPUT ? "OUTPUT"
-																			: "APPEND",
-					redir->filename);
-			redir = redir->next;
-		}
-		if (list->pipe_next)
-		{
-			printf("Pipe to the next command\n");
-		}
-		list = list->next;
-	}
-}
+// 	while (list)
+// 	{
+// 		printf("Command: %s\n", list->name);
+// 		printf("Arguments:");
+// 		for (int i = 0; i < list->arg_count; i++)
+// 		{
+// 			printf(" %s", list->args[i]);
+// 		}
+// 		printf("\n");
+// 		redir = list->redirections;
+// 		while (redir)
+// 		{
+// 			printf("Redirection: %s -> %s\n",
+// 					redir->type == INPUT ? "INPUT" : redir->type == OUTPUT ? "OUTPUT"
+// 																			: "APPEND",
+// 					redir->filename);
+// 			redir = redir->next;
+// 		}
+// 		if (list->pipe_next)
+// 		{
+// 			printf("Pipe to the next command\n");
+// 		}
+// 		list = list->next;
+// 	}
+// }

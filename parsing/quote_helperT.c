@@ -48,3 +48,43 @@ char	*remove_quotes(const char *str)
 	pro_quotes(str, result, len);
 	return (result);
 }
+
+static void concat_tokens(t_token *current, t_token *next)
+{
+    char *new_value;
+
+    new_value = malloc(strlen(current->value) + ft_strlen(next->value) + 1);
+    if (!new_value)
+        return;
+    
+    ft_strcpy(new_value, current->value);
+    ft_strcat(new_value, next->value);
+    free(current->value);
+    current->value = new_value;
+    current->next = next->next;
+    current->space = next->space;
+    free(next->value);
+    free(next);
+}
+
+void concatinate(t_token **tokens)
+{
+    t_token *current;
+    t_token *next;
+
+    current = *tokens;
+    while (current && current->next)
+    {
+        next = current->next;
+        if ((current->type == ARG || current->type == COMMANDE) &&
+            (next->type == ARG || next->type == COMMANDE) &&
+            !current->space)
+        {
+            concat_tokens(current, next);
+            if (!current->next)
+                break;
+        }
+        else
+            current = current->next;
+    }
+}
