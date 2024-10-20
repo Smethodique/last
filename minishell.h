@@ -22,7 +22,7 @@
 
 typedef struct s_global_vars
 {
-	int						exit_status;
+	unsigned char			exit_status;
 	char					**env;
 	int						heredoc_interrupted;
 	 int khbi ;

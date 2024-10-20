@@ -95,6 +95,7 @@ void cd(t_command *cmd, char **env)
         ft_putstr_fd("minishell: cd: ", STDERR_FILENO);
         ft_putstr_fd(cmd->args[1], STDERR_FILENO);
         ft_putendl_fd(": No such file or directory", STDERR_FILENO);
+        g_vars.exit_status = 1;
         free(old_pwd);
         return;
     }

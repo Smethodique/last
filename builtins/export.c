@@ -55,23 +55,31 @@ void	add_to_envp(char ***env, char *new_var)
 		*env = new_env;
 	}
 }
-void	export_helper(char *cmd, char ***env, int len)
+void export_helper(char *cmd, char ***env, int len)
 {
-	int		x;
-	char	*new_var;
+	int x;
+	char *new_var;
 
 	(void)len;
-	if ((x = check_env(cmd, *env)) && ft_strchr(cmd, '=')
-		&& (length(cmd) == length((*env)[x])))
+	if ((x = check_env(cmd, *env)) && ft_strchr(cmd, '=') && (length(cmd) == length((*env)[x])))
 	{
-		free((*env)[x]);
-		(*env)[x] = ft_strdup(cmd);
+		if ((*env)[x])
+		{
+			(*env)[x] = ft_strdup(cmd);
+		}
 	}
 	else if (!check_env(cmd, *env))
 	{
-		new_var = ft_strdup(cmd);
-		add_to_envp(env, new_var);
-		free(new_var);
+		if (ft_strchr(cmd, '='))
+		{
+			new_var = ft_strdup(cmd);
+			add_to_envp(env, new_var);
+			free(new_var);
+		}
+		else
+		{
+			add_to_envp(env, cmd);
+		}
 	}
 }
 

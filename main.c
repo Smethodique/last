@@ -11,8 +11,7 @@ void	process_linee(char *line, char **env)
 	if (tokens)
 	{
 		commands = parse_tokens(tokens);
-		print_command_list(commands);
-		print_tokens(tokens);
+		
 		if (commands)
 		{
 			if (commands->next)
@@ -38,6 +37,7 @@ void	init_shell(char **env)
 			process_linee(line, env);
 			add_history(line);
 		}
+		printf("exit status: %d\n", g_vars.exit_status);
 		free(line);
 	}
 }

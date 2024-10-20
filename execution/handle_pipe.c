@@ -56,7 +56,7 @@ pid_t	execute_piped_command(t_command *cmd, int in_fd, int out_fd, char **env)
 		if (is_builtin(cmd) != NOT_BUILT_IN)
 		{
 			execute_builtin(cmd, env, is_builtin(cmd));
-			exit(0);
+			exit(g_vars.exit_status);
 		}
 		else
 		{

@@ -74,6 +74,7 @@ void	execute_cmd(char **cmd)
 {
 	pid_t	pid;
 	char	*path;
+	int		status;
 
 	path = get_path(cmd);
 	if (path == NULL )
@@ -89,7 +90,7 @@ void	execute_cmd(char **cmd)
 		if (execve(path, cmd, g_vars.env) == -1)
 		{
 			printf("minishell: command not found: %s\n", cmd[0]);
-			g_vars.exit_status = 127;
+			exit(127);
 		}
 	}
 	else if (pid < 0)
@@ -97,7 +98,15 @@ void	execute_cmd(char **cmd)
 		printf("minishell: %s: %s\n", cmd[0], strerror(errno));
 	}
 	else
-		waitpid(pid, &g_vars.exit_status, 0);
+	{
+		waitpid(pid, &status, 0);
+		if (WIFEXITED(status))
+			g_vars.exit_status = WEXITSTATUS(status);
+		else if (WIFSIGNALED(status))
+			g_vars.exit_status = 128 + WTERMSIG(status);
+		else 	
+			g_vars.exit_status = 1;
+	}
 	free(path);
 }
 

@@ -53,7 +53,8 @@ void	execute_builtin(t_command *cmd, char **environment, int index)
 		pwd(cmd, environment);
 	else if (index == 6)
 		ft_exit(cmd, environment);
-      g_vars.exit_status = 0;
+	else
+		g_vars.exit_status = 0;
 }
 
 int	is_builtin(t_command *cmd)
