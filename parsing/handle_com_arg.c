@@ -22,7 +22,7 @@ void parse_comm(const char *input, int *i, int len, t_handle_vars *vars)
 		else if (input[*i] == '"' && !vars->in_single_quotes && !vars->escaped)
 			vars->in_double_quotes = !vars->in_double_quotes;
 		else if (!vars->in_single_quotes && !vars->in_double_quotes && !vars->escaped &&
-				 (isspace(input[*i]) || input[*i] == '|' || input[*i] == '<' || input[*i] == '>'))
+				 (ft_isspace(input[*i]) || input[*i] == '|' || input[*i] == '<' || input[*i] == '>'))
 			break;
 		vars->escaped = 0;
 		(*i)++;
